@@ -2,4 +2,4 @@
 go = "1.26.5"
 
 [tasks.client]
-run = "go run ./cmd/client"
+run = "go run ./internal/cli/sks"
