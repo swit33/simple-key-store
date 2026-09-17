@@ -1,15 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	s "github.com/swit33/simple-key-store/internal/store"
 )
 
 func main() {
-	allArgs := os.Args
-
-	Main(allArgs[1:])
+	os.Exit(Main(os.Args[1:]))
 }
 
 func Main(args []string) int {
@@ -33,24 +32,25 @@ func cmdSet(args []string) int {
 
 	store, err := s.Open(".")
 	if err != nil {
-		os.Stderr.WriteString("db not found\n")
+		fmt.Fprintln(os.Stderr, "db not found")
 		return 1
 	}
-	defer store.Close()
+	defer func() { _ = store.Close() }()
 
 	return 0
 }
 
 func cmdGet(args []string) int {
-	os.Stdout.WriteString("set called\n")
+	fmt.Println("set called")
 	return 0
 }
 
 func usage() int {
-	os.Stderr.WriteString("sks: a simple key-value store\n\n")
-	os.Stderr.WriteString("Usage: sks <command> [args...]\n")
-	os.Stderr.WriteString("Commands:\n")
-	os.Stderr.WriteString("  set <key> <value>\n")
-	os.Stderr.WriteString("  get <key>\n")
+	fmt.Fprintln(os.Stderr, "sks: a simple key-value store")
+	fmt.Fprintln(os.Stderr, "")
+	fmt.Fprintln(os.Stderr, "Usage: sks <command> [args...]")
+	fmt.Fprintln(os.Stderr, "Commands:")
+	fmt.Fprintln(os.Stderr, "  set <key> <value>")
+	fmt.Fprintln(os.Stderr, "  get <key>")
 	return 1
 }

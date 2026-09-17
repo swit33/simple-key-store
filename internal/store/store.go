@@ -71,7 +71,7 @@ func (store *Store) Set(ctx context.Context, path string, ciphertext, nonce []by
 		ON CONFLICT(path) DO UPDATE SET 
 			ciphertext = excluded.ciphertext,
 			nonce = excluded.nonce,
-			deleted = 0,	
+			deleted = 0
 		`, path, ciphertext, nonce)
 	if err != nil {
 		return err

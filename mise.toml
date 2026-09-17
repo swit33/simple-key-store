@@ -1,5 +1,66 @@
 [tools]
-go = "1.26.5"
+go = "1.27.1"
+golangci-lint = "2.13.2"
+staticcheck = "2026.2.1"
+"go:golang.org/x/tools/gopls" = "latest"
+
+# --- зависимости ---
+[tasks.deps]
+run = "go mod download"
+
+# go.mod/go.sum должны быть стабильны после tidy. Сравниваем хеши, а не
+# `git diff --exit-code`: рабочее дерево может быть законно грязным.
+[tasks.tidy]
+run = """
+before=$(sha256sum go.mod go.sum)
+go mod tidy
+after=$(sha256sum go.mod go.sum)
+[ "$before" = "$after" ] || {
+  echo "go mod tidy изменил go.mod/go.sum"
+  echo "before:" "$before"
+  echo "after:" "$after"
+  exit 1
+}
+"""
+
+# --- формат и статика ---
+[tasks.fmt]
+run = "go fmt ./..."
+
+[tasks."fmt:check"]
+run = """
+test -z "$(gofmt -l .)" || { gofmt -l .; exit 1; }
+"""
+
+[tasks.vet]
+run = "go vet ./..."
+
+[tasks.lint]
+run = "golangci-lint run ./..."
+
+[tasks.static]
+run = "staticcheck ./..."
+
+# --- тесты ---
+[tasks.test]
+run = "go test ./..."
+
+[tasks."test:race"]
+run = "go test -race ./..."
+
+[tasks."test:cover"]
+run = """
+go test -race -covermode=atomic -coverprofile=cover.out ./...
+go tool cover -func=cover.out | tail -1
+"""
+
+# --- сборка ---
+[tasks.build]
+run = "go build ./..."
+
+# --- гейт ---
+[tasks.check]
+depends = ["fmt:check", "vet", "lint", "test:race", "build"]
 
 [tasks.client]
 run = "go run ./internal/cli/sks"

@@ -1,6 +1,8 @@
 module github.com/swit33/simple-key-store
 
-go 1.26.5
+go 1.27.1
+
+require modernc.org/sqlite v1.58.0
 
 require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
@@ -12,5 +14,4 @@ require (
 	modernc.org/libc v1.75.6 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.12.1 // indirect
-	modernc.org/sqlite v1.58.0 // indirect
 )

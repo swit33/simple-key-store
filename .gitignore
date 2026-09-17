@@ -1,0 +1,7 @@
+cover.out
+bin/
+*.db
+*.db-wal
+*.db-shm
+loop/run.log
+loop/claim.txt
