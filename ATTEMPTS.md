@@ -29,3 +29,10 @@
 - Verifier: config/store/crypto/CLI проходили свежие read-only `golang-pro` проверки; финальный M1-аудит запускается на зафиксированном HEAD после этой записи.
 - По явному изменению цели пользователя останавливаемся на полном M1. `loop/ROADMAP_DONE` не создаётся: он означает M1–M4 целиком.
 - Не трогал: M2 (сервер, enroll/tokens, сеть/sync), M3 (HLC/conflicts/history/diff/resolve), M4 (styled UI/doctor/backup/deploy-артефакты).
+
+## iteration 1 — final M1 audit
+
+- Final verifier: PASS on `a125179` (fresh `golang-pro`, runs `83b3c0d3-fe05-4042-a470-3dfbaf90f980` and focused `7bc76bfb-1f8f-4493-8cda-bc870808774d`), no P0/P1.
+- Fresh evidence: `mise run check`, `mise run static`, `mise run tidy`, uncached `go test -race -count=1 ./...`, `go mod verify`, both integration scripts and static-binary isolated smoke are green; worktree clean.
+- Killability sample confirmed for store Set/Get, nonce/AAD, LocalDomain wrong-path binding, exit-code mapping, NUL export fail-closed, NOCACHE, permissions/PRAGMAs, plaintext scan and M1 env-name mapping.
+- M1 complete. Per the user's narrowed goal, stop here; M2–M4 remain intentionally untouched and `loop/ROADMAP_DONE` remains absent.
