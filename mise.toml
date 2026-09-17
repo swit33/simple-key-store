@@ -48,6 +48,9 @@ run = "go test ./..."
 [tasks."test:race"]
 run = "go test -race ./..."
 
+[tasks."test:integration"]
+run = "bash scripts/no-plaintext-test.sh && bash scripts/m1-eval-test.sh"
+
 [tasks."test:cover"]
 run = """
 go test -race -covermode=atomic -coverprofile=cover.out ./...
@@ -60,7 +63,7 @@ run = "CGO_ENABLED=0 go build ./..."
 
 # --- гейт ---
 [tasks.check]
-depends = ["fmt:check", "vet", "lint", "test:race", "build"]
+depends = ["fmt:check", "vet", "lint", "test:race", "build", "test:integration"]
 
 [tasks.client]
 run = "go run ./cmd/secrets"
