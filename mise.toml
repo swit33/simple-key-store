@@ -59,7 +59,12 @@ go tool cover -func=cover.out | tail -1
 
 # --- сборка ---
 [tasks.build]
-run = "CGO_ENABLED=0 go build ./..."
+run = """
+mkdir -p bin
+rm -f bin/secrets
+CGO_ENABLED=0 go build -o bin/secrets ./cmd/secrets
+printf 'built: %s/bin/secrets\n' "$PWD"
+"""
 
 # --- гейт ---
 [tasks.check]
