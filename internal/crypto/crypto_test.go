@@ -180,6 +180,13 @@ func TestOpenRejectsMismatchedContext(t *testing.T) {
 			openDomain: ServerDomain, openPath: "prod/b", openKey: key,
 		},
 		{
+			// Regression: the path must bind local ciphertext too. If the
+			// LocalDomain AAD dropped the path, this case would decrypt.
+			name:       "wrong path on the local side",
+			sealDomain: LocalDomain, sealPath: "prod/a", sealKey: key,
+			openDomain: LocalDomain, openPath: "prod/b", openKey: key,
+		},
+		{
 			name:       "path is a prefix of the sealed one",
 			sealDomain: ServerDomain, sealPath: testPath, sealKey: key,
 			openDomain: ServerDomain, openPath: "prod", openKey: key,
