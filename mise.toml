@@ -56,11 +56,11 @@ go tool cover -func=cover.out | tail -1
 
 # --- сборка ---
 [tasks.build]
-run = "go build ./..."
+run = "CGO_ENABLED=0 go build ./..."
 
 # --- гейт ---
 [tasks.check]
 depends = ["fmt:check", "vet", "lint", "test:race", "build"]
 
 [tasks.client]
-run = "go run ./internal/cli/sks"
+run = "go run ./cmd/secrets"
