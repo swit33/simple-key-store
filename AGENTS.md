@@ -15,7 +15,7 @@
 - CLI-контракт кодов возврата и потоков;
 - no-plaintext и eval/export integration gates.
 
-Не реализованы M2–M4: сервер, login/enroll, сеть/sync, конфликты, history/diff/resolve, styled UI, doctor/backup и deployment.
+Не реализованы M2–M4: сервер, login/enroll, сеть/sync (LWW по rev), status/doctor/export --sync, deploy-артефакты/backup, gum-UI. HLC, конфликтная машина (conflicts/resolve/diff/history) и lipgloss убраны из скоупа решением D25/D24 (спека rev 3).
 
 `cmd/secretsd` намеренно остаётся минимальным placeholder до M2. Не изображай готовый сервер и не добавляй заглушки, проходящие gate без поведения.
 
@@ -24,7 +24,7 @@
 При конфликте используй такой порядок:
 
 1. [`secrets-spec.md`](secrets-spec.md) — продуктовый контракт и threat model.
-2. [`DECISIONS.md`](DECISIONS.md) — принятые уточнения D1–D23; более позднее решение может явно заменить раннее.
+2. [`DECISIONS.md`](DECISIONS.md) — принятые уточнения D1–D25; более позднее решение может явно заменить раннее (D24/D25 сузили скоуп спеки rev 3).
 3. Код и исполняемые тесты текущего HEAD.
 4. [`agent-loop-guide.md`](agent-loop-guide.md) — процесс, gates и матрица требований.
 5. [`sqlite-storage-plan.md`](sqlite-storage-plan.md) — исторический план SQLite; не считай его точнее реализованного контракта.
@@ -190,7 +190,7 @@ Export обязан быть all-or-nothing: никакого partial stdout п�
 - `deleted` — tombstone flag;
 - `conflict`.
 
-Поля sync/conflict пока остаются со значениями M1 по умолчанию. HLC-колонок в schema M1 нет: их формат должен быть решён перед M3.
+Поля sync (rev/dirty/deleted) пока остаются со значениями M1 по умолчанию. HLC-колонок в schema M1 нет и не будет: синк — LWW по серверному `rev` (D25).
 
 Не клади plaintext value в schema, временные таблицы, debug columns, migration logs или error strings.
 
@@ -243,8 +243,7 @@ LocalDomain:  local|secrets/v1|<path>
 
 - `0`: успех;
 - `1`: input/config/key/crypto/IO error;
-- `2`: path валиден, но live value отсутствует;
-- `3`: конфликт, зарезервирован для M3.
+- `2`: path валиден, но live value отсутствует.
 
 ### 8.2 Потоки
 
@@ -394,25 +393,21 @@ mise run test:cover
 - real `secretsd`;
 - config.toml server identity;
 - enroll/login/tokens;
-- mTLS/HTTP API;
-- pull/push/sync;
-- outbox и version semantics;
+- HTTP API за Caddy (TLS);
+- pull/push/sync — LWW по серверному `rev` (D25);
+- outbox и tombstone;
 - machine-key reset с повторным pull.
 
 ### M3
 
-- HLC;
-- конфликтные версии;
-- history/diff/resolve;
-- exit code `3`;
-- cleanup/retention.
+- deploy-артефакты (`deploy/`, применение руками по D19);
+- backup + restore-тест.
 
 ### M4
 
-- styled UI;
-- `ls --tree/--long`;
-- status/doctor/backup;
-- deployment/service artifacts;
+- `doctor`, `status`, `export --sync`;
+- tombstone-чистка;
+- gum-скрипт UI в дотфайлах (D24), не lipgloss в Go;
 - observability и operator docs.
 
 При переходе к следующему milestone сначала обнови решения и матрицу evidence. Не добавляй compatibility shim для ещё несуществующей функции.
