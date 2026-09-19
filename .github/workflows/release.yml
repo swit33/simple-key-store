@@ -1,0 +1,40 @@
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+
+      - name: test
+        run: go test -race ./...
+
+      - name: integration
+        run: |
+          bash scripts/no-plaintext-test.sh
+          bash scripts/m1-eval-test.sh
+
+      - name: build linux/amd64
+        env:
+          CGO_ENABLED: "0"
+          GOOS: linux
+          GOARCH: amd64
+        run: |
+          go build -trimpath -o dist/secrets ./cmd/secrets
+          tar -czf "dist/secrets_${GITHUB_REF_NAME}_linux_amd64.tar.gz" -C dist secrets
+
+      - name: publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/*.tar.gz --generate-notes
